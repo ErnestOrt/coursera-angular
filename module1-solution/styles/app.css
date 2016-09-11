@@ -1,0 +1,9 @@
+.empty{
+  color:green !important;
+  border-color: green !important;
+}
+
+.not-empty{
+  color:red !important;
+  border-color: red !important;
+}
