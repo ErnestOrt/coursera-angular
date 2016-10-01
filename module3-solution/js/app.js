@@ -16,7 +16,7 @@ function FoundItemsDirective() {
       onRemove: '&'
     },
     controller: NarrowItDownController,
-    controllerAs: 'list',
+    controllerAs: 'ctrl',
     bindToController: true
   };
 
