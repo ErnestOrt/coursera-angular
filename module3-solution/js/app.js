@@ -1,65 +1,69 @@
-(function(){
-  'use strict';
 
+(function () {
+'use strict';
 
  angular.module('NarrowItDownApp', [])
- .controller('NarrowItDownController', NarrowItDownController)
- .service('MenuSearchService', MenuSearchService)
- .directive('foundItems', FoundItemsDirective);
- 
+        .controller('NarrowItDownController', NarrowItDownController)
+        .service('MenuSearchService', MenuSearchService)
+        .directive('foundItems', FoundItemsDirective);
 
-function FoundItemsDirective() {
-  var ddo = {
-    templateUrl: 'foundItems.html',
-    scope: {
-      items: '<',
-      onRemove: '&'
-    },
-    controller: NarrowItDownController,
-    controllerAs: 'ctrl',
-    bindToController: true
-  };
-
-  return ddo;
-}
-
-
-
- NarrowItDownController.$inject = ['MenuSearchService'];
- function NarrowItDownController(MenuSearchService) {
-  this.found = [];
-  this.searchTerm = "";
-
-  this.retrieveItems = function () {
-    this.found = MenuSearchService.getMatchedMenuItems(this.searchTerm);
-  }
-
-  this.removeItem = function (itemIndex) {
-      this.found.splice(itemIndex, 1);
-  }
- }
-
-
-MenuSearchService.$inject = ['$http']
-function MenuSearchService($http){
-  this.getMatchedMenuItems = function (searchTerm) {
-
-    return $http({
-                  method: "GET",
-                  url: ("https://davids-restaurant.herokuapp.com/menu_items.json")
+    NarrowItDownController.$inject = ['MenuSearchService'];
+    function NarrowItDownController(menuSearchService) {
+        var nidctrl = this;
+        nidctrl.searchTerm = "";
+        nidctrl.found = [];
+        nidctrl.displayFound = false;                        
+        nidctrl.getItems = function() {
+            menuSearchService.getMatchedMenuItems(nidctrl.searchTerm).then(function(foundItems) {
+                nidctrl.found = foundItems;
+                if (!nidctrl.displayFound) {
+                    nidctrl.displayFound = true;
                 }
-          ).then(function (result) {
-              var foundItems = [];
-              var allItems = result.data.menu_items;           
+            });
+        };
+        nidctrl.removeItem = function(index) {
+            nidctrl.found.splice(index, 1);
+            if (nidctrl.found.length == 0) {
+                    nidctrl.displayFound = false;
+            }
+        };
+    };
 
-              for(var index = 0; index<allItems.length; index++){
-                if(result.data.menu_items[index].description.toLowerCase().indexOf(searchTerm) !== -1 ){
-                  foundItems.push(allItems[index]);
+    MenuSearchService.$inject = ['$http'];
+    function MenuSearchService($http) {
+        var service = this;
+
+        service.getMatchedMenuItems = function(searchTerm) {
+            return $http.get('https://davids-restaurant.herokuapp.com/menu_items.json').then(function(response) {
+                var items = response.data.menu_items;
+                var foundItems = [];
+
+                for (var i = 0; i < items.length; i++) {
+                    if (searchTerm !== '' && items[i].description.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1) {
+                        foundItems.push(items[i]);
+                    }
                 }
-              }
+                return foundItems;
+            });
+        }
+    };
 
-              return foundItems;
-          });
-  }
-}
+    function FoundItemsDirective() {
+        var ddo = {
+            restrict: "E",
+            templateUrl: 'foundItems.html',
+            scope: {
+                foundItems: '<',
+                displayFoundItems: '<',
+                onRemove: '&'
+            },
+            controller: FoundItemsDirectiveController,
+            controllerAs: 'fidctrl',
+            bindToController: true
+        };
+
+        return ddo;
+    };
+
+    function FoundItemsDirectiveController() {};
 })();

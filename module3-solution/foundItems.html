@@ -1,9 +1,14 @@
- <br/>
-<div>
-  <ol>
-    <li ng-repeat="item in ctrl.items">
-        {{ item.name }}
-        <button ng-click="ctrl.onRemove({index: $index});">Don't want this one!</button>
-    </li>
-  </ol>
+<div class="row" ng-if="fidctrl.displayFoundItems">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <ol>
+            <li ng-repeat="foundItem in fidctrl.foundItems">
+                <dl>
+                    <dt>{{ foundItem.short_name }}, {{ foundItem.name }}</dt>
+                    <dd>{{ foundItem.description }}</dd>
+                </dl>
+                <button class="btn btn-default" ng-click="fidctrl.onRemove({index: $index});">Don't want this one!</button>
+            </li>
+        </ol>
+        <span class="bg-info" ng-if="fidctrl.foundItems.length == 0">Nothing found</span>
+    </div>
 </div>
